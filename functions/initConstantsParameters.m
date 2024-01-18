@@ -20,10 +20,10 @@ disp('')
 % -----------------------------------------------------
 % Text and messages
 global INSTRUCTIONS1 INSTRUCTIONS2 INSTRUCTIONS3 INSTRUCTIONS4 INSTRUCTIONS5 INSTRUCTIONS6 INSTRUCTIONS7 TRUE FALSE SAVING_MESSAGE
-global LOADING_MESSAGE  CLEAN_EXIT_MESSAGE  END_OF_EXPERIMENT_MESSAGE MINIBLOCK_TEXT END_OF_BLOCK_MESSAGE MEG_BREAK_MESSAGE
-global EXPERIMET_START_MESSAGE NUM_OF_TRIALS_CALIBRATION DIAL_SENSITIVITY_FACTOR RESPONSE_BOX
-global AUD_FEEDBACK_MESSAGE EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE fontType fontSize fontColor task_type
-global GENERAL_BREAK_MESSAGE CALIBRATION_START_MESSAGE END_OF_MINIBLOCK_MESSAGE RESTART_MESSAGE RESP_ORDER_WARNING_MESSAGE INTROSPEC_QN_VIS INTROSPEC_QN_AUD
+global LOADING_MESSAGE  CLEAN_EXIT_MESSAGE  END_OF_EXPERIMENT_MESSAGE MINIBLOCK_TEXT END_OF_BLOCK_MESSAGE 
+global EXPERIMET_START_MESSAGE RESPONSE_BOX
+global EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE fontType fontSize fontColor task_type
+global GENERAL_BREAK_MESSAGE END_OF_MINIBLOCK_MESSAGE RESTART_MESSAGE 
 % -----------------------------------------------------
 % Matrices info
 global EXPERIMENT_NAME subjectNum
@@ -34,7 +34,7 @@ global JITTER_RANGE_MEAN JITTER_RANGE_MIN JITTER_RANGE_MAX END_WAIT STIM_DURATIO
 % Keys parameters
 global VIS_RESPONSE_KEY CalibrationKey ValidationKey VIS_TARGET_KEY WRONG_KEY NO_KEY RESTART_KEY ABORT_KEY abortKey upKey downKey RightKey LeftKey MEGbreakKey PauseKey RestartKey YesKey
 global oneKey twoKey threeKey fourKey spaceBar MINIBLOCK_RESTART_KEY BLOCK_RESTART_KEY
-global CALIBRATION_PITCH_FREQ HIGH_PITCH_FREQ LOW_PITCH_FREQ PITCH_DURATION HIGH_PITCH_KEY LOW_PITCH_KEY AUD_RESPONSE_KEY_HIGH AUD_RESPONSE_KEY_LOW
+global HIGH_PITCH_FREQ LOW_PITCH_FREQ HIGH_PITCH_KEY LOW_PITCH_KEY AUD_RESPONSE_KEY_HIGH AUD_RESPONSE_KEY_LOW
 % -----------------------------------------------------
 % Trials parameters
 global DEBUG FIXATION
@@ -55,7 +55,7 @@ global NO_TRIAL
 
 
 %%  PARAMETERS THAT MAY BE ALTERED
-EXPERIMENT_NAME = 'ReconTime';
+EXPERIMENT_NAME = 'PerceivedIrrel';
 FILE_POSTFIX = '*.png';
 %add date as a separate column 5 years rewind
 t=datenum(date);
@@ -70,16 +70,6 @@ FRAME_COLOR = [39,241,44];
 TRIAL_DURATION = 2.000; % Total trial duration in seconds, without jitter
 END_WAIT = 2.000; % time of "end of experiment" message (in s)
 FRAME_ANTICIPATION = 0.5; % used for excat timing in PTB
-
-% Define pitches in Hz and duration in sec
-HIGH_PITCH_FREQ = 1100;
-LOW_PITCH_FREQ = 1000;
-PITCH_DURATION = 0.084;
-
-% calibration parameters
-NUM_OF_TRIALS_CALIBRATION = 100;
-CALIBRATION_PITCH_FREQ = 800;
-DIAL_SENSITIVITY_FACTOR = 5;
 
 if DEBUG == 2 %fast debug
     STIM_DURATION = [6 12 18] * (1/60); % 1/60 to allow at least one frame to appear on screen
@@ -106,17 +96,10 @@ CLEAN_EXIT_MESSAGE = 'Program aborted by user!';
 MINIBLOCK_TEXT = 'Press When These Appear:';
 END_OF_MINIBLOCK_MESSAGE = 'End of miniblock %d out of %d\n\n Press any button to continue...';
 END_OF_BLOCK_MESSAGE = 'End of block %d out of %d\n\n Your auditory score is: %d %% \n\n Feel free to take a break \n\n Press any button to continue...';
-MEG_BREAK_MESSAGE = 'We are saving the data, the experiment will proceed \n\n as soon as we are ready. \n\n Please wait';
 EXPERIMET_START_MESSAGE = 'The experiment starts now.\n\n Press any button to continue...';
-CALIBRATION_START_MESSAGE = 'The calibration task starts now.\n\n Press any button to continue...';
 EYETRACKER_CALIBRATION_MESSAGE = 'Press C to proceed to perform the calibration \n\n Press v to skip the calibration';
 EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS = 'Before we proceed, we need to calibrate the eyetracker.\n\n\n Press any button to proceed to calibration...';
 GENERAL_BREAK_MESSAGE = 'Feel free to take a break now.\n\n Press any button to continue...';
-AUD_FEEDBACK_MESSAGE = '\n\n\n\n Your score on the auditory task was: %s';
-RESP_ORDER_WARNING_MESSAGE = 'Please remember to \n\n respond to the visual first \n\n and to the auditory task second';
-
-INTROSPEC_QN_VIS = 'Visual task duration?';
-INTROSPEC_QN_AUD = 'Auditory task duration?';
 
 PRESS_SPACE ='\nPress any button to continue...\n';
 RESTART_MESSAGE='Are you sure you want to restart?';
@@ -159,20 +142,10 @@ if RESPONSE_BOX
     LeftKey  =  KbName('G');
 
     if mod(subjectNum, 2) == 0
-        if strcmp(task_type, 'introspection')
-            VIS_RESPONSE_KEY = KbName('E');
-        else
-            VIS_RESPONSE_KEY = KbName('B');
-        end
-        AUD_RESPONSE_KEY_HIGH = KbName('A');
-        AUD_RESPONSE_KEY_LOW = KbName('C');
+        VIS_RESPONSE_KEY = KbName('B');
         spaceBar =  KbName('D');
     else
-        if strcmp(task_type, 'introspection')
-            VIS_RESPONSE_KEY = KbName('F');
-        else
-            VIS_RESPONSE_KEY = KbName('A');
-        end
+        VIS_RESPONSE_KEY = KbName('A');
         AUD_RESPONSE_KEY_HIGH = KbName('B');
         AUD_RESPONSE_KEY_LOW = KbName('D');
         spaceBar =  KbName('C');

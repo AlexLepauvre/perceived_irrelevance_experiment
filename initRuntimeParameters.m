@@ -9,13 +9,13 @@ function initRuntimeParameters
 % Recording modalities:
 global Behavior EYE_TRACKER LAB_ID
 % Photodiode parameters:
-global PHOTODIODE DIOD_DURATION DIOD_SIZE DIOD_ON_COLOUR DIOD_OFF_COLOUR DIAL RESPONSE_BOX
+global PHOTODIODE DIOD_DURATION DIOD_SIZE DIOD_ON_COLOUR DIOD_OFF_COLOUR RESPONSE_BOX
 % Eyetracker parameters:
 global DISTANCE_SCREEN_TRACKER HEAD_FIXED
 % Hardware parameters:
 global SCREEN_SIZE_CM REF_RATE_OPTIMAL viewDistanceBottomTop viewDistance 
 % Debugging and code parameters:
-global VERBOSE NO_PRACTICE DEBUG RESOLUTION_FORCE NO_FULLSCREEN WINDOW_RESOLUTION NO_ERROR VERBOSE_PLUS SHOW_INSTRUCTIONS NO_CALIBRATION_TASK
+global VERBOSE NO_PRACTICE DEBUG RESOLUTION_FORCE NO_FULLSCREEN WINDOW_RESOLUTION NO_ERROR VERBOSE_PLUS SHOW_INSTRUCTIONS
  
 % Legend: false = 0 | true = 1  
 LAB_ID = 'SX';
@@ -33,7 +33,6 @@ viewDistanceBottomTop = [72 71.2]; % IN CM!! Distance between the participant he
 DISTANCE_SCREEN_TRACKER = 90; % Distance between the eyetracker lense and the computer screen. Only needed for REMOTE MODE!
 HEAD_FIXED = 0; % Head fixed must be set to 0 if remote mode
 
-
 %% Photodiode parameters:
 PHOTODIODE = 0; % Must be set to 1 for the photodiode to be presented
 DIOD_ON_COLOUR = 255; % Color of the photodiode when turned on (255 white, 0 black)
@@ -44,7 +43,6 @@ DIOD_DURATION = 3; % Duration of the photodiode flash when turned on (in frames)
 %% DEBUG parameters
 DEBUG = 1; % 0 = no debug | 1 = regular debug | 2 = fast debug
 SHOW_INSTRUCTIONS = 1;
-NO_CALIBRATION_TASK = 1;
 VERBOSE = 0; %
 VERBOSE_PLUS = 0; % for debugging duration balance only
 NO_PRACTICE = 1; % skip the practice run
@@ -53,7 +51,6 @@ NO_FULLSCREEN = 1; % enable windowed mode for dubugging
 NO_ERROR = 0; % Disable testing program error throws
 % Q: Do I need to fill this out? Pixels? Yoav: only if you want the debug scree to be of a different size
 WINDOW_RESOLUTION = [10 10 1200 800];
-DIAL = 1; % 1 if dial is present
 RESPONSE_BOX = 0; % 1 if Cedrus RB-844 response box is present. 
 
 end

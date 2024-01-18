@@ -3,7 +3,6 @@
 function [] = initPsychtooblox()
     global DEBUG ScreenHeight stimSizeHeight ScreenWidth refRate screenScaler fontType fontSize fontColor text gray w REF_RATE_OPTIMAL center
     global WINDOW_RESOLUTION debugFactor NO_FULLSCREEN  VIEWING_DISTANCE MAX_VISUAL_ANGEL STIM_DURATION TRIAL_DURATION ppd
-    global padhandle RESPONSE_BOX response_box_handle % These are required for the sound display
     disp('WELCOME to initPsychtooblox')
     
     %% Set preferences and open graphic window:
@@ -18,7 +17,7 @@ function [] = initPsychtooblox()
 
         else
             % For the real experiment, do not skip the sync test
-            Screen('Preference', 'SkipSyncTests', 1); 
+            Screen('Preference', 'SkipSyncTests', 0); 
         end
     catch
         % Trying a second time just in case something went wrong the first
@@ -26,7 +25,7 @@ function [] = initPsychtooblox()
         if DEBUG 
             Screen('Preference', 'SkipSyncTests', 1); 
         else
-            Screen('Preference', 'SkipSyncTests', 1); 
+            Screen('Preference', 'SkipSyncTests', 0); 
         end
     end
     Screen('Preference', 'TextRenderer', 1);
@@ -61,23 +60,13 @@ function [] = initPsychtooblox()
     if ~NO_FULLSCREEN
         HideCursor;
     end
-        % this enables us to use the alpha transparency
+    % this enables us to use the alpha transparency
     Screen('BlendFunction', w, 'GL_SRC_ALPHA', 'GL_ONE_MINUS_SRC_ALPHA', [gray 128]);
 
     % Setting priority to max, such that the experiment has full priority
     % on the CPU:
     priorityLevel=MaxPriority(w);
     Priority(priorityLevel);
-    
-    %% Initialize sound parameters
-    InitializePsychSound(1);
-    device = [];
-    mode = 1;
-    reqlatencyclass = 1;
-    freq = [];
-    channels = 2;
-    padhandle = PsychPortAudio('Open', device, mode, reqlatencyclass, freq, channels);
-    PsychPortAudio('Volume', padhandle, 0.01);
 
     %% Derive relevant parameters from setup information:
     % Extract screen parameters in pixels:
@@ -117,7 +106,6 @@ function [] = initPsychtooblox()
     ppd = getVisualAngel(VIEWING_DISTANCE,1); % pixel per degree
 
     %% Set text params
-
     Screen('TextFont',w, fontType);
     Screen('TextStyle', w, 0);
     Screen('TextSize', w, round(fontSize*screenScaler));
