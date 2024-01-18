@@ -72,13 +72,13 @@ initPsychtooblox(); % initializes psychtoolbox window at correct resolution and 
 
 %% Setup the trial matrix and log:
 % open trial matrix (form Experiment 1) and add auditory conditions
-% MatFolderName = [pwd,filesep,'TrialMatrices\'];
-% if introspection
-%     TableName = ['sub-',subID,'_task-', task_type, num2str(session),'_trials.csv'];
-% else
-%     TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
-% end
-% trial_mat = readtable(fullfile(MatFolderName, TableName));
+MatFolderName = [pwd,filesep,'TrialMatrices\'];
+if introspection
+    TableName = ['sub-',subID,'_task-', task_type, num2str(session),'_trials.csv'];
+else
+    TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
+end
+trial_mat = readtable(fullfile(MatFolderName, TableName));
 
 %% Load and prepare the visual and audio stimuli:
 showMessage(LOADING_MESSAGE);
