@@ -5,12 +5,12 @@ close all;
 clear all;
 
 % Hardware parameters:
-global subjectNum TRUE FALSE refRate compKbDevice
+global subjectNum TRUE FALSE refRate compKbDevice w 
 global el EYE_TRACKER CalibrationKey ValidationKey EYETRACKER_CALIBRATION_MESSAGE NO_PRACTICE session LAB_ID subID task_type
 global TRIAL_DURATION DATA_FOLDER FRAME_ANTICIPATION PHOTODIODE DIOD_DURATION SHOW_INSTRUCTIONS
 global LOADING_MESSAGE CLEAN_EXIT_MESSAGE SAVING_MESSAGE END_OF_EXPERIMENT_MESSAGE
 global END_OF_MINIBLOCK_MESSAGE END_OF_BLOCK_MESSAGE EXPERIMET_START_MESSAGE
-global ABORTED RESTART_KEY NO_KEY ABORT_KEY VIS_TARGET_KEY
+global ABORTED RESTART_KEY NO_KEY ABORT_KEY VIS_TARGET_KEY INSTRUCTIONS_FOLDER
 
 % Add functions folder to path (when we separate all functions)
 function_folder = [pwd,filesep,'functions\'];
@@ -19,19 +19,19 @@ addpath(function_folder)
 % prompt user for information
 subjectNum = input('Subject number [101-199, default 101]: '); if isempty(subjectNum); subjectNum = 101; end
 session = input('Session number [1-6, default 1]: '); if isempty(session); session = 1; end
-task = input('Task [0: ObjectTarget, 1: ObjectTR, 2: ObjectRI, 3:FaceTarget, 4:FaceTR, 5:FaceTI]: '); if isempty(introspection); introspection = 0; end
+task = input('Task [0: ObjectTarget, 1: ObjectTR, 2: ObjectRI, 3:FaceTarget, 4:FaceTR, 5:FaceTI]: '); if isempty(task); task = 0; end 
 
-if strcmp(task, "0")
+if task == 0
     task_type = 'ObjectTarget';
-elseif strcmp(task, "1")
+elseif task == 1
     task_type = 'ObjectTR';
-elseif strcmp(task, "2")
+elseif task == 2
     task_type = 'ObjectRI';
-elseif strcmp(task, "3")
+elseif task == 3
     task_type = 'FaceTarget';
-elseif strcmp(task, "4")
+elseif task == 4
     task_type = 'FaceTR';
-elseif strcmp(task, "5")
+elseif task == 5
     task_type = 'FaceTI';
 else
     error("The number you have passed is not supported! Choose a number between 0 and 5 for the task!")
@@ -72,28 +72,29 @@ initPsychtooblox(); % initializes psychtoolbox window at correct resolution and 
 
 %% Setup the trial matrix and log:
 % open trial matrix (form Experiment 1) and add auditory conditions
-MatFolderName = [pwd,filesep,'TrialMatrices\'];
-if introspection
-    TableName = ['sub-',subID,'_task-', task_type, num2str(session),'_trials.csv'];
-else
-    TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
-end
-trial_mat = readtable(fullfile(MatFolderName, TableName));
+% MatFolderName = [pwd,filesep,'TrialMatrices\'];
+% if introspection
+%     TableName = ['sub-',subID,'_task-', task_type, num2str(session),'_trials.csv'];
+% else
+%     TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
+% end
+% trial_mat = readtable(fullfile(MatFolderName, TableName));
 
 %% Load and prepare the visual and audio stimuli:
 showMessage(LOADING_MESSAGE);
 loadStimuli() % visual
+instructions_ptr = loadInstructions(INSTRUCTIONS_FOLDER, w);
 
 % make jitter multiple of refresh rate
-for tr_jit = 1:length(trial_mat.trial)
-    jit_multiplicator = round(trial_mat.stim_jit(tr_jit)/refRate);
-    trial_mat.stim_jit(tr_jit) = refRate*jit_multiplicator;
-end
+% for tr_jit = 1:length(trial_mat.trial)
+%     jit_multiplicator = round(trial_mat.stim_jit(tr_jit)/refRate);
+%     trial_mat.stim_jit(tr_jit) = refRate*jit_multiplicator;
+% end
 
 %% Instructions
 % displays instructions
 if SHOW_INSTRUCTIONS
-    Instructions(task_type);
+    Instructions(instructions_ptr);
 end
 
 %% Main experimental loop:

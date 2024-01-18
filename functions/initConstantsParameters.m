@@ -19,10 +19,10 @@ disp('')
 % GOBAL CONSTANTS
 % -----------------------------------------------------
 % Text and messages
-global INSTRUCTIONS1 INSTRUCTIONS2 INSTRUCTIONS3 INSTRUCTIONS4 INSTRUCTIONS5 INSTRUCTIONS6 INSTRUCTIONS7 TRUE FALSE SAVING_MESSAGE
+global TRUE FALSE SAVING_MESSAGE
 global LOADING_MESSAGE  CLEAN_EXIT_MESSAGE  END_OF_EXPERIMENT_MESSAGE MINIBLOCK_TEXT END_OF_BLOCK_MESSAGE 
 global EXPERIMET_START_MESSAGE RESPONSE_BOX
-global EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE fontType fontSize fontColor task_type
+global EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE fontType fontSize fontColor
 global GENERAL_BREAK_MESSAGE END_OF_MINIBLOCK_MESSAGE RESTART_MESSAGE 
 % -----------------------------------------------------
 % Matrices info
@@ -183,26 +183,4 @@ NO_TRIAL = nan;
 
 % instruction slides addresses
 INSTRUCTIONS_FOLDER = 'instructions';
-INSTRUCTIONS1 = 'instructions1.0.png';
-if mod(subjectNum, 2) == 0
-
-    if strcmp(task_type, 'introspection')
-        INSTRUCTIONS2 = 'instructions2.4.png';
-    else
-        INSTRUCTIONS2 = 'instructions2.2.png';
-    end
-    INSTRUCTIONS3 = 'instructions3.2.png';
-else
-    if strcmp(task_type, 'introspection')
-        INSTRUCTIONS2 = 'instructions2.3.png';
-    else
-        INSTRUCTIONS2 = 'instructions2.1.png';
-    end
-    INSTRUCTIONS3 = 'instructions3.1.png';
-end
-INSTRUCTIONS4 = 'instructions4.0.png';
-INSTRUCTIONS5 = 'instructions5.0.png';
-INSTRUCTIONS6 = 'instructions6.0.png';
-INSTRUCTIONS7 = 'instructions7.0.png';
-
 end % end of initConstantParameters function

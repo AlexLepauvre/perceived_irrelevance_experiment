@@ -4,16 +4,16 @@
 % ------
 % background - the pointer to the instructions image
 
-function [ ] = showInstructions(background)
+function [ ] = showInstructions(ptr)
 
-    global gray w ScreenWidth ScreenHeight INSTRUCTIONS_FOLDER PHOTODIODE;
+    global gray w ScreenWidth ScreenHeight PHOTODIODE;
     Screen('FillRect', w, gray);
 
-    %show main stimuli
-    x = Screen('MakeTexture', w, imread(fullfile(pwd, INSTRUCTIONS_FOLDER, background)));
-    Screen('DrawTexture',w, x, [], [0 0 ScreenWidth ScreenHeight]);
+    % Draw instructions:
+    Screen('DrawTexture',w, ptr, [], [0 0 ScreenWidth ScreenHeight]);
     if PHOTODIODE
             drawPhotodiodBlock('off')
     end
+    % Show the instructions:
     Screen('Flip', w);
 end

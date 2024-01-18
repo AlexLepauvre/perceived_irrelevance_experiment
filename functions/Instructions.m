@@ -1,19 +1,12 @@
-function [ ] = Instructions(task_type)
-global INSTRUCTIONS1 INSTRUCTIONS2 INSTRUCTIONS3 INSTRUCTIONS4 INSTRUCTIONS5 INSTRUCTIONS6 INSTRUCTIONS7
+function [ ] = Instructions(instructions_ptr)
 global RightKey LeftKey
-
-if strcmp(task_type, 'introspection')
-    InstructionsPaths = [INSTRUCTIONS1;INSTRUCTIONS2;INSTRUCTIONS3;INSTRUCTIONS5;INSTRUCTIONS6;INSTRUCTIONS7];
-else
-    InstructionsPaths = [INSTRUCTIONS1;INSTRUCTIONS2;INSTRUCTIONS3;INSTRUCTIONS4];
-end
 
 % Setting the slide number to 1 to initiate the while loop
 InstructionSlideNum = 1;
 % displays all instruction screens
-while InstructionSlideNum<= size(InstructionsPaths,1) % Looping until we went through all slides:
+while InstructionSlideNum<= length(instructions_ptr) % Looping until we went through all slides:
     % Showing instruction slide
-    showInstructions(InstructionsPaths(InstructionSlideNum,:));
+    showInstructions(instructions_ptr(InstructionSlideNum));
     WaitSecs(0.2);
     CorrectKey = 0; % Setting the CorrectKey to 0 to initiate the loop
     while ~CorrectKey % As long as a non-accepted key is pressed, keep on asking
