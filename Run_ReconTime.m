@@ -140,7 +140,6 @@ try
 
         % Add the columns for logging:
         blk_mat = prepare_log(blk_mat);
-        log_hasInputs_vis = nan(1,length(trial_mat.trial));
 
         % Check whether this block is a practice or not:
         is_practice = blk_mat.is_practice(1);
@@ -177,11 +176,8 @@ try
             fixShown = FALSE;
             pitchPlayed = FALSE;
             jitterLogged = FALSE;
-            hasInput_vis = FALSE;
-            hasInput_aud = FALSE;
-
+            hasInput = FALSE;
             % other variables that need to be reset for every trial
-            hasInputs = 0; % input flag, marks if participant already replied
             PauseTime = 0; % If the experiment is paused, the duration of the pause is stored to account for it.
 
             % get texture pointer
@@ -196,7 +192,7 @@ try
             end
 
             % show stimulus
-            blk_mat.vis_stim_time(tr) = showStimuli(texture_ptr);
+            blk_mat.stimulus_onset_ts(tr) = showStimuli(texture_ptr);
             DiodFrame = 0;
 
             % Sending response trigger for the eyetracker
@@ -221,14 +217,14 @@ try
 
             while elapsedTime < total_trial_duration
                 %% Get response:
-                if hasInputs == 0
+                if hasInput == 0
                     % Ge the response:
                     [key,Resp_Time] = getInput();
 
                     % Handling the response:
                     % If the participant pressed a key that is different
                     % to the one of the previous iteration:
-                    if key ~= NO_KEY && key ~= blk_mat.trial_first_button_press(tr)
+                    if key ~= NO_KEY
                         % Sending response trigger for the eyetracker
                         if EYE_TRACKER
                             trigger_str = get_et_trigger('response', blk_mat.task_relevance{tr}, ...
@@ -241,15 +237,31 @@ try
                             error(CLEAN_EXIT_MESSAGE);
                         end
 
-                        % logging reaction time and button press:
-                        hasInputs = 1; % Log that an input occured
-                        log_hasInputs_vis(tr) = hasInputs; % Log that an input occured
-                        blk_mat.trial_first_button_press(tr) = key; % Log the pressed key
-                        blk_mat.time_of_resp_vis(tr) = Resp_Time; % Log  the reaction time
-                        if key == VIS_TARGET_KEY
+                        % logging reaction time and button press:s
+                        hasInput = 1; % Log that an input occured
+                        blk_mat.response_flag(tr) = hasInput; % Log that there was a response in this trial
+                        blk_mat.response_ts(tr) = Resp_Time; % Log  the reaction time
+                        blk_mat.response_key(tr) = key; % Log response key
+                        if key ~= VIS_TARGET_KEY
                             blk_mat.wrong_key(tr) =  key;
                         end
                     end
+                end
+
+                %% Inter stimulus interval
+                % Present fixation
+                if elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION) && fixShown == FALSE
+                    fix_time = showFixation('PhotodiodeOn');
+                    DiodFrame = CurrentFrame;
+                    % Sending response trigger for the eyetracker
+                    if EYE_TRACKER
+                        trigger_str = get_et_trigger('fixation_onset', blk_mat.task_relevance{tr}, ...
+                            blk_mat.duration(tr), blk_mat.category{tr}, orientation, vis_stim_id);
+                        Eyelink('Message',trigger_str);
+                    end
+                    % log fixation in journal
+                    blk_mat.fix_time(tr) = fix_time;
+                    fixShown = TRUE;
                 end
 
                 %% Critical trial feedback:
@@ -277,22 +289,6 @@ try
                     blk_mat.duration_probe_accuracy(:) =  blk_mat == correct_key;  % Time stamp of wrong key press
                     blk_mat.duration_probe_rt(:) =  orientation_probe_rt - stimuliTiming;  % Time stamp of wrong key press
                     break
-                end
-
-                %% Inter stimulus interval
-                % Present fixation
-                if elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION) && fixShown == FALSE
-                    fix_time = showFixation('PhotodiodeOn');
-                    DiodFrame = CurrentFrame;
-                    % Sending response trigger for the eyetracker
-                    if EYE_TRACKER
-                        trigger_str = get_et_trigger('fixation_onset', blk_mat.task_relevance{tr}, ...
-                            blk_mat.duration(tr), blk_mat.category{tr}, orientation, vis_stim_id);
-                        Eyelink('Message',trigger_str);
-                    end
-                    % log fixation in journal
-                    blk_mat.fix_time(tr) = fix_time;
-                    fixShown = TRUE;
                 end
 
                 % Present jitter
@@ -341,38 +337,6 @@ try
         % Save the eyetracker data:
         if EYE_TRACKER
             saveEyetracker(task, blk);
-        end
-
-        % Append the block log to the overall log:
-        if ~exist('log_all', 'var') && ~blk_mat.is_practice(1)
-            log_all = blk_mat;
-        elseif ~blk_mat.is_practice(1)
-            log_all = [log_all; blk_mat];  % Not the most efficient but it is in a non critical part
-        end
-
-        % Break after every 4 blocks in prp task and every 8 blocks in introspective task
-        blk_break = 4;
-        miniblk_break = 1;
-
-        if ~is_practice
-            if mod(blk, blk_break) == 0
-                last_block = log_all(log_all.block > blk - blk_break, :);
-                [last_block, ~] = compute_performance(last_block);
-                block_message = sprintf(END_OF_BLOCK_MESSAGE, round(blk/blk_break), round(trial_mat.block(end)/blk_break), round(mean(last_block.trial_accuracy_aud, 'omitnan')*100));
-                showMessage(block_message);
-                wait_resp = 0;
-                while wait_resp == 0
-                    [~, ~, wait_resp] = KbCheck();
-                end
-            elseif mod(blk, miniblk_break) == 0
-                block_message = sprintf(END_OF_MINIBLOCK_MESSAGE, round(blk/miniblk_break), round(trial_mat.block(end)/miniblk_break));
-                showMessage(block_message);
-
-                wait_resp = 0;
-                while wait_resp == 0
-                    [~, ~, wait_resp] = KbCheck();
-                end
-            end
         end
 
         if is_practice
