@@ -5,8 +5,8 @@ close all;
 clear all;
 
 % Hardware parameters:
-global subjectNum TRUE FALSE refRate compKbDevice w 
-global el EYE_TRACKER CalibrationKey ValidationKey EYETRACKER_CALIBRATION_MESSAGE NO_PRACTICE session LAB_ID subID task_type
+global subjectNum TRUE FALSE refRate compKbDevice w
+global el EYE_TRACKER CalibrationKey ValidationKey EYETRACKER_CALIBRATION_MESSAGE NO_PRACTICE LAB_ID subID task_type
 global TRIAL_DURATION DATA_FOLDER FRAME_ANTICIPATION PHOTODIODE DIOD_DURATION SHOW_INSTRUCTIONS
 global LOADING_MESSAGE CLEAN_EXIT_MESSAGE SAVING_MESSAGE END_OF_EXPERIMENT_MESSAGE
 global END_OF_MINIBLOCK_MESSAGE END_OF_BLOCK_MESSAGE EXPERIMET_START_MESSAGE
@@ -18,21 +18,12 @@ addpath(function_folder)
 
 % prompt user for information
 subjectNum = input('Subject number [101-199, default 101]: '); if isempty(subjectNum); subjectNum = 101; end
-session = input('Session number [1-6, default 1]: '); if isempty(session); session = 1; end
-task = input('Task [0: ObjectTarget, 1: ObjectTR, 2: ObjectRI, 3:FaceTarget, 4:FaceTR, 5:FaceTI]: '); if isempty(task); task = 0; end 
+task = input('Task [1: face, 2: object]: '); if isempty(task); task = 0; end
 
-if task == 0
-    task_type = 'ObjectTarget';
-elseif task == 1
-    task_type = 'ObjectTR';
+if task == 1
+    task_type = 'objectsurprise';
 elseif task == 2
-    task_type = 'ObjectRI';
-elseif task == 3
-    task_type = 'FaceTarget';
-elseif task == 4
-    task_type = 'FaceTR';
-elseif task == 5
-    task_type = 'FaceTI';
+    task_type = 'facesurprise';
 else
     error("The number you have passed is not supported! Choose a number between 0 and 5 for the task!")
 end
@@ -41,14 +32,6 @@ end
 initRuntimeParameters
 initConstantsParameters(); % defines all constants and initilizes parameters of the program
 
-% Logging everything that is printed into the command window! If the
-% log file already exist, delete it, otherwise the logs will be
-% appended and it won't be specific to that participant. Moreover, the
-% logs are always saved
-dfile ='log_recon_time.txt';
-if exist(dfile, 'file') ; delete(dfile); end
-Str = CmdWinTool('getText');
-dlmwrite(dfile,Str,'delimiter','');
 % To get different seeds for matlab randomization functions.
 rng('shuffle');
 
@@ -57,7 +40,7 @@ rng('shuffle');
 % Create the subject ID by combining the lab ID with the subject name:
 subID = sprintf('%s%d', LAB_ID, subjectNum);
 
-SubSesFolder = fullfile(pwd,DATA_FOLDER,['sub-',subID],['ses-',num2str(session)],['task-',num2str(task_type)]);
+SubSesFolder = fullfile(pwd,DATA_FOLDER,['sub-',subID],['task-',num2str(task_type)]);
 ExistFlag = exist(SubSesFolder,'dir');
 if ExistFlag
     warning ('This participant number and session was already attributed!')
@@ -73,11 +56,7 @@ initPsychtooblox(); % initializes psychtoolbox window at correct resolution and 
 %% Setup the trial matrix and log:
 % open trial matrix (form Experiment 1) and add auditory conditions
 MatFolderName = [pwd,filesep,'TrialMatrices\'];
-if introspection
-    TableName = ['sub-',subID,'_task-', task_type, num2str(session),'_trials.csv'];
-else
-    TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
-end
+TableName = ['sub-',subID,'_task-', task_type,'_trials.csv'];
 trial_mat = readtable(fullfile(MatFolderName, TableName));
 
 %% Load and prepare the visual and audio stimuli:
@@ -86,10 +65,10 @@ loadStimuli() % visual
 instructions_ptr = loadInstructions(INSTRUCTIONS_FOLDER, w);
 
 % make jitter multiple of refresh rate
-% for tr_jit = 1:length(trial_mat.trial)
-%     jit_multiplicator = round(trial_mat.stim_jit(tr_jit)/refRate);
-%     trial_mat.stim_jit(tr_jit) = refRate*jit_multiplicator;
-% end
+for tr_jit = 1:length(trial_mat.trial)
+    jit_multiplicator = round(trial_mat.stim_jit(tr_jit)/refRate);
+    trial_mat.stim_jit(tr_jit) = refRate*jit_multiplicator;
+end
 
 %% Instructions
 % displays instructions
@@ -101,10 +80,6 @@ end
 try
 
     ABORTED = 0;
-
-    %% save everything from command window
-    Str = CmdWinTool('getText');
-    dlmwrite(dfile,Str,'delimiter','');
 
     %%  Experiment
     % Experiment Prep
@@ -212,9 +187,13 @@ try
             % get texture pointer
             vis_stim_id = blk_mat.identity{tr};
             orientation = blk_mat.orientation{tr};
-            trial_type = blk_mat.trial_type{tr};
+            critical_trial = blk_mat.critical_trial(tr);
             texture_ptr = getPointer(vis_stim_id, orientation);
             blk_mat.texture(tr) = texture_ptr;
+
+            if ~critical_trial
+                continue
+            end
 
             % show stimulus
             blk_mat.vis_stim_time(tr) = showStimuli(texture_ptr);
@@ -239,7 +218,7 @@ try
             elapsedTime = 0;
             % define total trial duration
             total_trial_duration = TRIAL_DURATION - (refRate*FRAME_ANTICIPATION) + blk_mat.stim_jit(tr);
-            
+
             while elapsedTime < total_trial_duration
                 %% Get response:
                 if hasInputs == 0
@@ -274,26 +253,29 @@ try
                 end
 
                 %% Critical trial feedback:
-                if strcmp(trial_type, "critical") && elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION) && fixShown == FALSE
+                if critical_trial && elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION) && fixShown == FALSE
                     % Sending response trigger for the eyetracker
                     if EYE_TRACKER
                         trigger_str = get_et_trigger('critical_trial', blk_mat.task_relevance{tr}, ...
                             blk_mat.duration(tr), blk_mat.category{tr}, orientation, vis_stim_id);
                         Eyelink('Message',trigger_str);
                     end
-                    % 1. Show the fixation probe:
-                    orientation_probe_resp = showProbe('orientation');
-                    orientation_conf_probe_resp = showProbe('confidence');
-                    duration_probe_resp = showProbe('duration');
-                    duration_probe_confidence_resp = showProbe('confidence');
-                    mind_wandering_probe_confidence_resp = showProbe('mindWandering');
-                    DiodFrame = CurrentFrame;
-                    % log all probes responses in the log file:
-                    blk_mat.ori_resp(tr) = orientation_probe_resp;
-                    blk_mat.ori_conf(tr) = orientation_conf_probe_resp;
-                    blk_mat.dur_resp(tr) = duration_probe_resp;
-                    blk_mat.dur_conf(tr) = duration_probe_confidence_resp;
-                    blk_mat.mw_resp(tr) = mind_wandering_probe_confidence_resp;
+                    % 1. Show the orientation probe:
+                    [orientation_probe_ts, correct_key] = showOrientationProbe(target_id, target_ori, orientations);
+                    % Get answer for the orientation probe:
+                    [orientation_probe_rt, keyCode, ~] = KbWait(compKbDevice);
+                    blk_mat.orientation_probe_ts(:) = orientation_probe_ts; % Time stamp of the orientation probe
+                    blk_mat.orientation_probe_response(tr) =  keyCode;  % Pressed key for the orientation probe
+                    blk_mat.orientation_probe_accuracy(:) =  keyCode == correct_key;  % Accuracy of orientation response
+                    blk_mat.orientation_probe_rt(:) =  orientation_probe_rt - stimuliTiming;  % Reaction time of orientation probe
+
+                    % 2. Show the orientation probe:
+                    [stimuliTiming, correct_key] = showDurationProbe(target_id, target_ori, orientations);
+                    % Get answer for the orientation probe:
+                    [orientation_probe_rt, keyCode, deltaSecs] = KbWait(compKbDevice);
+                    blk_mat.duration_probe_response(tr) =  blk_mat;  % Time stamp of wrong key press
+                    blk_mat.duration_probe_accuracy(:) =  blk_mat == correct_key;  % Time stamp of wrong key press
+                    blk_mat.duration_probe_rt(:) =  orientation_probe_rt - stimuliTiming;  % Time stamp of wrong key press
                     break
                 end
 
@@ -373,7 +355,7 @@ try
         miniblk_break = 1;
 
         if ~is_practice
-            if mod(blk, blk_break) == 0 
+            if mod(blk, blk_break) == 0
                 last_block = log_all(log_all.block > blk - blk_break, :);
                 [last_block, ~] = compute_performance(last_block);
                 block_message = sprintf(END_OF_BLOCK_MESSAGE, round(blk/blk_break), round(trial_mat.block(end)/blk_break), round(mean(last_block.trial_accuracy_aud, 'omitnan')*100));
@@ -442,6 +424,7 @@ catch e
         % Save the code:
         saveCode(task);
         safeExit()
+        rethrow(e)
     catch
         warning('-----  Data could not be saved!  ------')
         safeExit()

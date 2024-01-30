@@ -21,20 +21,20 @@ disp('')
 % Text and messages
 global TRUE FALSE SAVING_MESSAGE
 global LOADING_MESSAGE  CLEAN_EXIT_MESSAGE  END_OF_EXPERIMENT_MESSAGE MINIBLOCK_TEXT END_OF_BLOCK_MESSAGE 
-global EXPERIMET_START_MESSAGE RESPONSE_BOX
-global EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE fontType fontSize fontColor
+global EXPERIMET_START_MESSAGE
+global EYETRACKER_CALIBRATION_MESSAGE EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS PRESS_SPACE ORIENTATION_PROBE_TEXT DURATION_PROBE_TEXT SHORT_TEXT LONG_TEXT fontType fontSize fontColor
 global GENERAL_BREAK_MESSAGE END_OF_MINIBLOCK_MESSAGE RESTART_MESSAGE 
 % -----------------------------------------------------
 % Matrices info
-global EXPERIMENT_NAME subjectNum
+global EXPERIMENT_NAME
 % -----------------------------------------------------
 % Timing parameters
 global JITTER_RANGE_MEAN JITTER_RANGE_MIN JITTER_RANGE_MAX END_WAIT STIM_DURATION TRIAL_DURATION FRAME_ANTICIPATION
 % -----------------------------------------------------
 % Keys parameters
-global VIS_RESPONSE_KEY CalibrationKey ValidationKey VIS_TARGET_KEY WRONG_KEY NO_KEY RESTART_KEY ABORT_KEY abortKey upKey downKey RightKey LeftKey MEGbreakKey PauseKey RestartKey YesKey
+global CalibrationKey ValidationKey VIS_TARGET_KEY WRONG_KEY NO_KEY RESTART_KEY ABORT_KEY abortKey upKey downKey RightKey RightKey_text LeftKey LeftKey_text MEGbreakKey PauseKey RestartKey YesKey
 global oneKey twoKey threeKey fourKey spaceBar MINIBLOCK_RESTART_KEY BLOCK_RESTART_KEY
-global HIGH_PITCH_FREQ LOW_PITCH_FREQ HIGH_PITCH_KEY LOW_PITCH_KEY AUD_RESPONSE_KEY_HIGH AUD_RESPONSE_KEY_LOW
+global HIGH_PITCH_FREQ LOW_PITCH_FREQ HIGH_PITCH_KEY LOW_PITCH_KEY
 % -----------------------------------------------------
 % Trials parameters
 global DEBUG FIXATION
@@ -100,7 +100,10 @@ EXPERIMET_START_MESSAGE = 'The experiment starts now.\n\n Press any button to co
 EYETRACKER_CALIBRATION_MESSAGE = 'Press C to proceed to perform the calibration \n\n Press v to skip the calibration';
 EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS = 'Before we proceed, we need to calibrate the eyetracker.\n\n\n Press any button to proceed to calibration...';
 GENERAL_BREAK_MESSAGE = 'Feel free to take a break now.\n\n Press any button to continue...';
-
+ORIENTATION_PROBE_TEXT = 'Which orientation did you just see?\n';
+DURATION_PROBE_TEXT = 'For how long was the previous stimulus displayed on the screen?\n';
+SHORT_TEXT = "SHORT";
+LONG_TEXT = "LONG";
 PRESS_SPACE ='\nPress any button to continue...\n';
 RESTART_MESSAGE='Are you sure you want to restart?';
 
@@ -120,6 +123,10 @@ KbName('UnifyKeyNames');
 CalibrationKey = KbName('C');
 upKey         =  KbName('UpArrow');
 downKey       =  KbName('DownArrow');
+RightKey      =  KbName('LeftArrow');
+RightKey_text = 'Right Key';
+LeftKey       =  KbName('RightArrow');
+LeftKey_text  = 'Left Key';
 PauseKey      =  KbName('Q');
 RestartKey    =  KbName('R');
 abortKey      =  KbName('ESCAPE'); % ESC aborts experiment
@@ -134,31 +141,6 @@ ValidationKey = KbName('V');
 
 MINIBLOCK_RESTART_KEY = KbName('M');
 BLOCK_RESTART_KEY = KbName('B');
-
-
-
-if RESPONSE_BOX
-    RightKey =  KbName('H');
-    LeftKey  =  KbName('G');
-
-    if mod(subjectNum, 2) == 0
-        VIS_RESPONSE_KEY = KbName('B');
-        spaceBar =  KbName('D');
-    else
-        VIS_RESPONSE_KEY = KbName('A');
-        AUD_RESPONSE_KEY_HIGH = KbName('B');
-        AUD_RESPONSE_KEY_LOW = KbName('D');
-        spaceBar =  KbName('C');
-    end
-
-else
-    RightKey =  KbName('RightArrow');
-    LeftKey  =  KbName('LeftArrow');
-    VIS_RESPONSE_KEY = spaceBar;
-    AUD_RESPONSE_KEY_HIGH = twoKey;
-    AUD_RESPONSE_KEY_LOW = oneKey;
-end
-
 
 %%  PARAMETERS THAT SHOULD NOT BE ALTERED, BUT SHOULD BE USED AS REFERENCE
 
