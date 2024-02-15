@@ -22,7 +22,7 @@ margin = stimSizeLength * 2; % Adjust the margin between stimuli as needed
 left_x = center(1) - margin / 2 - stimSizeLength;
 right_x = center(1) + margin/2;
 y = center(2) - stimSizeHeight/2;
-left_pos = [right_x, y , right_x + stimSizeLength, y + stimSizeHeight];
+left_pos = [left_x, y , left_x + stimSizeLength, y + stimSizeHeight];
 right_pos = [right_x, y , right_x + stimSizeLength, y + stimSizeHeight];
 
 % Randomly alternate between the target being presented left or right:

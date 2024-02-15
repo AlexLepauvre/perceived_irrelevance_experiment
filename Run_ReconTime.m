@@ -9,7 +9,7 @@ global subjectNum TRUE FALSE refRate compKbDevice w
 global el EYE_TRACKER CalibrationKey ValidationKey EYETRACKER_CALIBRATION_MESSAGE NO_PRACTICE LAB_ID subID task_type
 global TRIAL_DURATION DATA_FOLDER FRAME_ANTICIPATION PHOTODIODE DIOD_DURATION SHOW_INSTRUCTIONS
 global LOADING_MESSAGE CLEAN_EXIT_MESSAGE SAVING_MESSAGE END_OF_EXPERIMENT_MESSAGE
-global END_OF_MINIBLOCK_MESSAGE END_OF_BLOCK_MESSAGE EXPERIMET_START_MESSAGE
+global EXPERIMET_START_MESSAGE
 global ABORTED RESTART_KEY NO_KEY ABORT_KEY VIS_TARGET_KEY INSTRUCTIONS_FOLDER
 
 % Add functions folder to path (when we separate all functions)
@@ -187,10 +187,6 @@ try
             texture_ptr = getPointer(vis_stim_id, orientation);
             blk_mat.texture(tr) = texture_ptr;
 
-            if ~critical_trial
-                continue
-            end
-
             % show stimulus
             blk_mat.stimulus_onset_ts(tr) = showStimuli(texture_ptr);
             DiodFrame = 0;
@@ -265,7 +261,7 @@ try
                 end
 
                 %% Critical trial feedback:
-                if critical_trial && elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION) && fixShown == FALSE
+                if critical_trial && elapsedTime >= ((blk_mat.duration(tr)) - refRate*FRAME_ANTICIPATION)
                     % Sending response trigger for the eyetracker
                     if EYE_TRACKER
                         trigger_str = get_et_trigger('critical_trial', blk_mat.task_relevance{tr}, ...
@@ -273,25 +269,27 @@ try
                         Eyelink('Message',trigger_str);
                     end
                     % 1. Show the orientation probe:
-                    [orientation_probe_ts, correct_key] = showOrientationProbe(target_id, target_ori, orientations);
+                    [orientation_probe_ts, correct_key] = showOrientationProbe(vis_stim_id, orientation, unique(blk_mat.orientation));
                     % Get answer for the orientation probe:
                     [orientation_probe_rt, keyCode, ~] = KbWait(compKbDevice);
-                    blk_mat.orientation_probe_ts(:) = orientation_probe_ts; % Time stamp of the orientation probe
-                    blk_mat.orientation_probe_response(tr) =  keyCode;  % Pressed key for the orientation probe
-                    blk_mat.orientation_probe_accuracy(:) =  keyCode == correct_key;  % Accuracy of orientation response
-                    blk_mat.orientation_probe_rt(:) =  orientation_probe_rt - stimuliTiming;  % Reaction time of orientation probe
+                    blk_mat.orientation_probe_ts(tr) = orientation_probe_ts; % Time stamp of the orientation probe
+                    blk_mat.orientation_probe_response(tr) =  find(keyCode);  % Pressed key for the orientation probe
+                    blk_mat.orientation_probe_accuracy(tr) =  find(keyCode) == correct_key;  % Accuracy of orientation response
+                    blk_mat.orientation_probe_rt(tr) =  orientation_probe_rt - orientation_probe_ts;  % Reaction time of orientation probe
+                    % Wait until the key is released:
+                    KbReleaseWait(compKbDevice);
 
                     % 2. Show the orientation probe:
-                    [stimuliTiming, correct_key] = showDurationProbe(target_id, target_ori, orientations);
+                    [duration_probe_ts, correct_key] = showDurationProbe(duration);
                     % Get answer for the orientation probe:
-                    [orientation_probe_rt, keyCode, deltaSecs] = KbWait(compKbDevice);
-                    blk_mat.duration_probe_response(tr) =  blk_mat;  % Time stamp of wrong key press
-                    blk_mat.duration_probe_accuracy(:) =  blk_mat == correct_key;  % Time stamp of wrong key press
-                    blk_mat.duration_probe_rt(:) =  orientation_probe_rt - stimuliTiming;  % Time stamp of wrong key press
-                    break
+                    [duation_probe_rt, keyCode, deltaSecs] = KbWait(compKbDevice);
+                    blk_mat.duration_probe_ts(tr) = duation_probe_rt; % Time stamp of the orientation probe
+                    blk_mat.duration_probe_response(tr) =  find(keyCode);  % Pressed key for the orientation probe
+                    blk_mat.duration_probe_accuracy(tr) =  find(keyCode) == correct_key;  % Accuracy of orientation response
+                    blk_mat.duration_probe_rt(tr) =  duation_probe_rt - duration_probe_ts;  % Reaction time of orientation probe
                 end
 
-                % Present jitter
+                %% Inter trial jitter:
                 if elapsedTime > TRIAL_DURATION  - refRate*FRAME_ANTICIPATION && jitterLogged == FALSE
                     JitOnset = showFixation('PhotodiodeOn');
                     DiodFrame = CurrentFrame;
@@ -309,7 +307,7 @@ try
                 end
 
                 % Updating clock:
-                elapsedTime = GetSecs - blk_mat.vis_stim_time(tr);
+                elapsedTime = GetSecs - blk_mat.stimulus_onset_ts(tr);
 
                 % Updating the frame counter:
                 CurrentFrame = floor(elapsedTime/refRate);
@@ -349,11 +347,6 @@ try
     end  % End of block loop
 
     %% End of experiment
-
-    % compute performances of tasks
-    [log_all, performance_struct] = compute_performance(log_all);
-    % Save the whole table:
-    saveTable(log_all, task, "all");
     % Save the code:
     saveCode(task);
     % Letting the participant that it is over:
@@ -363,11 +356,6 @@ try
     showMessage(SAVING_MESSAGE);
     % Mark the time of saving onset
     ttime = GetSecs;
-
-
-    % save everything from command window
-    Str = CmdWinTool('getText');
-    dlmwrite(dfile,Str,'delimiter','');
 
     % Terminating teh experiment:
     safeExit()
@@ -379,11 +367,6 @@ catch e
         % Save the eyetracker data:
         if EYE_TRACKER
             saveEyetracker(task, blk);
-        end
-        % If the log all already exists, save it as well:
-        if exist('log_all', 'var')
-            [log_all, performance_struct] = compute_performance(log_all);
-            saveTable(log_all, task, "all");
         end
         % Save the code:
         saveCode(task);

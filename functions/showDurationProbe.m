@@ -39,9 +39,9 @@ end
 text_padding = 200;
 sy = sy + stimSizeHeight + text_padding;
 % Left key instructions:
-DrawFormattedText(w, textProcess(LeftKey_text), left_x, sy);
+DrawFormattedText(w, textProcess(LeftKey_text), left_sx, sy);
 % Right key instructions:
-DrawFormattedText(w, textProcess(RightKey_text), right_x, sy);
+DrawFormattedText(w, textProcess(RightKey_text), right_sx, sy);
 % Probe instructions:
 DrawFormattedText(w, textProcess(DURATION_PROBE_TEXT), 'center');
 if PHOTODIODE

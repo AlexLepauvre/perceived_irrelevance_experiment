@@ -102,8 +102,8 @@ EYETRACKER_CALIBRATION_MESSAGE_BETWEENBLOCKS = 'Before we proceed, we need to ca
 GENERAL_BREAK_MESSAGE = 'Feel free to take a break now.\n\n Press any button to continue...';
 ORIENTATION_PROBE_TEXT = 'Which orientation did you just see?\n';
 DURATION_PROBE_TEXT = 'For how long was the previous stimulus displayed on the screen?\n';
-SHORT_TEXT = "SHORT";
-LONG_TEXT = "LONG";
+SHORT_TEXT = 'SHORT';
+LONG_TEXT = 'LONG';
 PRESS_SPACE ='\nPress any button to continue...\n';
 RESTART_MESSAGE='Are you sure you want to restart?';
 
@@ -123,9 +123,9 @@ KbName('UnifyKeyNames');
 CalibrationKey = KbName('C');
 upKey         =  KbName('UpArrow');
 downKey       =  KbName('DownArrow');
-RightKey      =  KbName('LeftArrow');
+RightKey      =  KbName('RightArrow');
 RightKey_text = 'Right Key';
-LeftKey       =  KbName('RightArrow');
+LeftKey       =  KbName('LeftArrow');
 LeftKey_text  = 'Left Key';
 PauseKey      =  KbName('Q');
 RestartKey    =  KbName('R');

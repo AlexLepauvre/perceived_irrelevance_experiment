@@ -24,7 +24,7 @@ EYE_TRACKER = 0; % Must be set to 1 if recording with Eyetracker
 Behavior = 1; %Set to 1 if recording with Behavior only
 
 %% Hardware and physical parameters:
-REF_RATE_OPTIMAL = 60; % in Hz. Screen refresh rate.
+REF_RATE_OPTIMAL = 59; % in Hz. Screen refresh rate.
 viewDistance = 70.2; % Default viewing distance (if no viewDist argument sent with the function call)
 SCREEN_SIZE_CM = [53.2 29.8]; % screen [width, height] in centimeters, change it to fit your setting
 viewDistanceBottomTop = [72 71.2]; % IN CM!! Distance between the participant head and the top and bottom of the screen. Only needed if HEAD_FIXED on.
@@ -41,13 +41,13 @@ DIOD_SIZE = 100; % Size of the square where the photodiode is presented (in pixe
 DIOD_DURATION = 3; % Duration of the photodiode flash when turned on (in frames)
 
 %% DEBUG parameters
-DEBUG = 1; % 0 = no debug | 1 = regular debug | 2 = fast debug
-SHOW_INSTRUCTIONS = 0;
+DEBUG = 0; % 0 = no debug | 1 = regular debug | 2 = fast debug
+SHOW_INSTRUCTIONS = 1;
 VERBOSE = 0; %
 VERBOSE_PLUS = 0; % for debugging duration balance only
 NO_PRACTICE = 1; % skip the practice run
 RESOLUTION_FORCE = 0; % the program will complain if optimal refresh rate is not possible on this screen
-NO_FULLSCREEN = 1; % enable windowed mode for dubugging
+NO_FULLSCREEN = 0; % enable windowed mode for dubugging
 NO_ERROR = 0; % Disable testing program error throws
 % Q: Do I need to fill this out? Pixels? Yoav: only if you want the debug scree to be of a different size
 WINDOW_RESOLUTION = [10 10 1200 800];
